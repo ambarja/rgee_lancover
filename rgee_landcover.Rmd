@@ -1,0 +1,89 @@
+---
+title: "rgee - landcover"
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    toc_depth: 2
+theme: united
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Requeriments
+
+```{r echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(rgee)
+library(sf)
+library(cptcity)
+library(leaflet.extras2)
+
+ee_Initialize('antonybarja8@gmail.com',
+              drive = TRUE,gcs = TRUE)
+
+```
+
+# Study area 
+
+```{r echo=FALSE, message=FALSE}
+fname <- system.file("shape/nc.shp", package="sf")
+nc <- st_read(fname) %>% sf_as_ee()
+years <- c(1992, 2001,2004,2006,2008,2011,2013,2016) %>% ee$List()
+
+names_bands <- paste0('landcover',c(1992, 2001,2004,2006,2008,2011,2013,2016))
+
+nldc <- years$
+  map(ee_utils_pyfunc(function(x) {
+    ee$ImageCollection("USGS/NLCD_RELEASES/2016_REL")$
+      select('landcover')$
+      filter(ee$Filter$calendarRange(x, x, "year"))$
+      sum()$
+      clip(nc)
+    })
+    )
+
+stack_nldc <- ee$ImageCollection(nldc)
+
+viz <- list(
+  min = 0, 
+  max = 100,
+  palette = c(
+    "#466b9f","#d1def8","#dec5c5","#d99282","#eb0000",
+    "#ab0000","#b3ac9f","#68ab5f","#1c5f2c","#b5c58f",
+    "#af963c","#ccb879","#dfdfc2","#d1d182","#a3cc51",
+    "#82ba9e","#dcd939","#ab6c28","#b8d9eb","#6c9fb8"
+    )
+  )
+
+Map$centerObject(nc,zoom = 6)
+Map$addLayers(stack_nldc,visParams = viz,name = names_bands,legend = TRUE) 
+
+```
+
+# Export to Image to local
+
+```{r eval=FALSE, message=FALSE}
+stack_tobands <- stack_nldc$toBands() %>% ee$Image$toDouble()
+stack_tobands$bandNames()$getInfo()
+download <- ee_as_raster(
+  image = stack_img$
+    select("0_landcover",
+           "1_landcover",
+           "2_landcover",
+           "3_landcover",
+           "4_landcover",
+           "5_landcover",
+           "6_landcover",
+           "7_landcover"),
+  dsn = '/home/antonybarja/Descargas/img.tif', #ruta
+  via = "drive",
+  scale = 5000 
+  )
+```
