@@ -1,5 +1,5 @@
 ---
-title: "rgee - Land cover"
+title: "rgee - Landcover"
 subtitle: "USGS National Land Cover Database"
 output: 
   html_document:
@@ -50,7 +50,7 @@ m0 <- Map$addLayer(
 m0
 ```
 
-# Land cover
+# Landcover
 
 ```{r message=FALSE}
 years <- c(1992, 2001,2004,2006,2008,2011,2013,2016) %>% ee$List()
