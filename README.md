@@ -1,1 +1,1 @@
-# rgee_lancover
+# rgee_landcover
