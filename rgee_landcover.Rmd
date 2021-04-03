@@ -1,5 +1,6 @@
 ---
-title: "rgee - landcover"
+title: "rgee - Land cover"
+subtitle: "USGS National Land Cover Database"
 output: 
   html_document:
     code_folding: "hide"
@@ -84,7 +85,7 @@ m1 + m0
 ```
 
 
-# % Impervious
+# %Impervious
 
 ```{r message=FALSE}
 years <- c(2001, 2006, 2011, 2016) %>% ee$List()
@@ -112,7 +113,7 @@ m2 <- Map$addLayers(nldc_impervious, visParams = viz, name = names_bands, legend
 m2 + m0 
 ```
 
-# % Tree cover
+# %Tree cover
 
 ```{r message=FALSE}
 years <- c(2011, 2016) %>% ee$List()
