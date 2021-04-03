@@ -2,6 +2,7 @@
 title: "rgee - landcover"
 output: 
   html_document:
+    code_folding: "hide"
     toc: true
     toc_float:
       collapsed: false
@@ -17,13 +18,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Requeriments
 
-```{r echo=FALSE, message=FALSE}
+```{r message=FALSE}
 
 library(tidyverse)
 library(rgee)
 library(sf)
 library(cptcity)
-library(leaflet.extras2)
 
 ee_Initialize('antonybarja8@gmail.com',
               drive = TRUE,gcs = TRUE)
@@ -32,7 +32,7 @@ ee_Initialize('antonybarja8@gmail.com',
 
 # Study area 
 
-```{r echo=FALSE, message=FALSE}
+```{r  message=FALSE}
 study_area <- read_sf('gpkg/study_area.shp') %>% st_simplify(preserveTopology = T,dTolerance = 0.001)
 
 nc <- study_area %>% sf_as_ee()
@@ -51,14 +51,14 @@ m0
 
 
 
-```{r echo=FALSE, message=FALSE}
+```{r message=FALSE}
 years <- c(1992, 2001,2004,2006,2008,2011,2013,2016) %>% ee$List()
 names_bands <- paste0('landcover',c(1992, 2001,2004,2006,2008,2011,2013,2016))
 
 nldc <- years$
   map(ee_utils_pyfunc(function(x) {
     ee$ImageCollection("USGS/NLCD_RELEASES/2016_REL")$
-      select('landcover')$
+      select(c('landcover'))$
       filter(ee$Filter$calendarRange(x, x, "year"))$
       sum()$
       clip(nc)
@@ -80,15 +80,69 @@ viz <- list(
 
 Map$centerObject(nc,zoom = 9)
 m1 <- Map$addLayers(stack_nldc,visParams = viz,name = names_bands,legend = TRUE) 
-```
-
-```{r echo=FALSE, message=FALSE}
 m1 + m0
 ```
 
 
+# % Impervious
 
-# Export to Image to local
+```{r message=FALSE}
+years <- c(2001, 2006, 2011, 2016) %>% ee$List()
+names_bands <- paste0('%impervious',c(2001,2006,2011,2016))
+impervious <- years$
+  map(ee_utils_pyfunc(function(x) {
+    ee$ImageCollection("USGS/NLCD_RELEASES/2016_REL")$
+      select('impervious')$
+      filter(ee$Filter$calendarRange(x, x, "year"))$
+      sum()$
+      clip(nc)
+    })
+    )
+
+nldc_impervious <- ee$ImageCollection(impervious)
+
+viz <- list(
+  min = 0,
+  max = 100,
+  palette = cpt(pal = 'mpl_viridis')
+  )
+
+Map$centerObject(nc,zoom = 9)
+m2 <- Map$addLayers(nldc_impervious, visParams = viz, name = names_bands, legend = TRUE) 
+m2 + m0 
+```
+
+# % Tree cover
+
+```{r message=FALSE}
+years <- c(2011, 2016) %>% ee$List()
+names_bands <- paste0('%tree_cover',c(2011, 2016))
+tree_cover <- years$
+  map(ee_utils_pyfunc(function(x) {
+    ee$ImageCollection("USGS/NLCD_RELEASES/2016_REL")$
+      select('percent_tree_cover')$
+      filter(ee$Filter$calendarRange(x, x, "year"))$
+      sum()$
+      clip(nc)
+    })
+    )
+
+nldc_tree_cover <- ee$ImageCollection(tree_cover)
+
+viz <- list(
+  min = 0,
+  max = 100,
+  palette = cpt(pal = 'mpl_magma',rev = TRUE)
+  )
+
+Map$centerObject(nc,zoom = 9)
+m3 <- Map$addLayers(nldc_tree_cover, visParams = viz, name = names_bands, legend = TRUE) 
+
+m3 + m0
+```
+
+
+# Export an Image from GEE to local
 
 ```{r eval=FALSE, message=FALSE}
 stack_tobands <- stack_nldc$toBands() %>% ee$Image$toDouble()
