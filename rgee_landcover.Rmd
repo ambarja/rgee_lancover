@@ -35,8 +35,23 @@ ee_Initialize('antonybarja8@gmail.com',
 ```{r echo=FALSE, message=FALSE}
 fname <- system.file("shape/nc.shp", package="sf")
 nc <- st_read(fname) %>% sf_as_ee()
-years <- c(1992, 2001,2004,2006,2008,2011,2013,2016) %>% ee$List()
 
+Map$centerObject(nc , zoom = 6)
+m0 <- Map$addLayer(
+  nc,
+  visParams = list(
+    color = '#00000000',
+    width = 8),
+  name = 'study area' 
+  )
+
+m0
+```
+
+
+
+```{r echo=FALSE, message=FALSE}
+years <- c(1992, 2001,2004,2006,2008,2011,2013,2016) %>% ee$List()
 names_bands <- paste0('landcover',c(1992, 2001,2004,2006,2008,2011,2013,2016))
 
 nldc <- years$
@@ -63,9 +78,14 @@ viz <- list(
   )
 
 Map$centerObject(nc,zoom = 6)
-Map$addLayers(stack_nldc,visParams = viz,name = names_bands,legend = TRUE) 
-
+m1 <- Map$addLayers(stack_nldc,visParams = viz,name = names_bands,legend = TRUE) 
 ```
+
+```{r echo=FALSE, message=FALSE}
+m1 + m0
+```
+
+
 
 # Export to Image to local
 
