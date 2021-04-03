@@ -143,6 +143,95 @@ m3 + m0
 ```
 
 
+# NDVI  index 
+
+```{r message=FALSE}
+modis_years <- c(2010:2021) %>% ee$List()
+names_bands <- sprintf('NDVI%s',2010:2021)
+ndvi <- modis_years$
+  map(ee_utils_pyfunc(function(x){
+    ee$ImageCollection('MODIS/006/MOD13Q1')$
+      select('NDVI')$
+      filter(ee$Filter$calendarRange(x,x,"year"))$
+      mean()$
+      multiply(0.0001)$
+      clip(nc)
+    })
+    )
+
+stack_ndvi <- ee$ImageCollection(ndvi)
+viz <- list(
+  min = 0,
+  max = 1,
+  palette = cpt('grass_ndvi')
+)
+
+Map$centerObject(nc, zoom = 9)
+m4 <- Map$addLayers(stack_ndvi,visParams = viz,name = names_bands)
+m4 + m0 
+
+```
+
+
+# LTS - Tmax
+
+```{r message=FALSE}
+
+band_tmax <- sprintf('tmax%s%s',2010:2021,"[K°]")
+tmax <- modis_years$
+  map(ee_utils_pyfunc(function(x){
+    ee$ImageCollection('MODIS/006/MOD11A1')$
+      select('LST_Day_1km')$
+      filter(ee$Filter$calendarRange(x,x,"year"))$
+      max()$
+      multiply(0.02)$
+      clip(nc)
+  })
+  )
+
+viz_tmax <- list(
+  min =300,
+  max =350,
+  palette = cpt('grass_byr')
+)
+
+stack_tmax <- ee$ImageCollection(tmax)
+Map$centerObject(nc, zoom = 9)
+m5 <- Map$addLayers(stack_tmax, visParams = viz_tmax, name = band_tmax,legend = TRUE)
+m5 + m0 
+
+```
+
+# LTS - Tmax
+
+```{r message=FALSE}
+band_tmin <- sprintf('tmin%s%s',2010:2021,"[K°]")
+tmin <- modis_years$
+  map(ee_utils_pyfunc(function(x){
+    ee$ImageCollection('MODIS/006/MOD11A1')$
+      select('LST_Day_1km')$
+      filter(ee$Filter$calendarRange(x,x,"year"))$
+      min()$
+      multiply(0.02)$
+      clip(nc)
+  })
+  )
+
+viz_tmin <- list(
+  min = 230,
+  max = 280,
+  palette = cpt('grass_byr')
+)
+
+
+stack_tmin <- ee$ImageCollection(tmin)
+Map$centerObject(nc, zoom = 9)
+m6 <- Map$addLayers(stack_tmin, visParams = viz_tmin, name = band_tmin,legend = TRUE)
+m6 + m0 
+
+```
+
+`
 # Export an Image from GEE to local
 
 ```{r eval=FALSE, message=FALSE}
