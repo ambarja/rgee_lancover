@@ -33,10 +33,11 @@ ee_Initialize('antonybarja8@gmail.com',
 # Study area 
 
 ```{r echo=FALSE, message=FALSE}
-fname <- system.file("shape/nc.shp", package="sf")
-nc <- st_read(fname) %>% sf_as_ee()
+study_area <- read_sf('gpkg/study_area.shp') %>% st_simplify(preserveTopology = T,dTolerance = 0.001)
 
-Map$centerObject(nc , zoom = 6)
+nc <- study_area %>% sf_as_ee()
+
+Map$centerObject(nc , zoom = 9)
 m0 <- Map$addLayer(
   nc,
   visParams = list(
@@ -77,7 +78,7 @@ viz <- list(
     )
   )
 
-Map$centerObject(nc,zoom = 6)
+Map$centerObject(nc,zoom = 9)
 m1 <- Map$addLayers(stack_nldc,visParams = viz,name = names_bands,legend = TRUE) 
 ```
 
