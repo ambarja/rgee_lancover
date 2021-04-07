@@ -25,7 +25,7 @@ library(tidyverse)
 library(rgee)
 library(sf)
 library(cptcity)
-
+source('utils.R')
 ee_Initialize('antonybarja8@gmail.com',
               drive = TRUE,gcs = TRUE)
 
@@ -37,7 +37,7 @@ ee_Initialize('antonybarja8@gmail.com',
 study_area <- read_sf('gpkg/study_area.shp') %>% st_simplify(preserveTopology = T,dTolerance = 0.001)
 
 nc <- study_area %>% sf_as_ee()
-
+box <- study_area %>% st_bbox() %>% st_as_sfc() %>% sf_as_ee()
 Map$centerObject(nc , zoom = 9)
 m0 <- Map$addLayer(
   nc,
@@ -80,7 +80,7 @@ viz <- list(
   )
 
 Map$centerObject(nc,zoom = 9)
-m1 <- Map$addLayers(stack_nldc,visParams = viz,name = names_bands,legend = TRUE) 
+m1 <- Map$addLayers(stack_nldc,viz,legend = TRUE) 
 m1 + m0
 ```
 
@@ -231,24 +231,94 @@ m6 + m0
 
 ```
 
-`
+
+# Creation of an environment dataset
+
+```{r,  message=FALSE}
+nldc <- stack_nldc$
+  toBands()$
+  select('7_landcover')$
+  rename('nldc')
+
+impervious <- nldc_impervious$
+  toBands()$
+  select('3_impervious')$
+  rename('imp')
+
+tree_cover <- nldc_tree_cover$
+  toBands()$
+  select('1_percent_tree_cover')$
+  rename('tree')
+
+ndvi <- stack_ndvi$
+  toBands()$
+  select('6_NDVI')$
+  rename('ndvi') 
+  
+tmax <- stack_tmax$
+  toBands()$
+  select('6_LST_Day_1km')$
+  rename('tmax')
+tmin <- stack_tmin$
+  toBands()$
+  select('6_LST_Day_1km')$
+  rename('tmin')
+
+stack_eviroment <- ee$Image(c(nldc,impervious,tree_cover,ndvi,tmax,tmin))
+```
+
+
+# Principal Component Analysis
+
+```{r,  message=FALSE}
+standar_enviroment <- img_to_stand(x = stack_eviroment) 
+enviroment_index <- pca_rgee(x = standar_enviroment) 
+viz <- list(
+  bands = c('pc3','pc2','pc1'),
+  min = -2.5 ,
+  max = 2.5
+)
+
+Map$addLayer(enviroment_index,visParams = viz,name = 'pc3-pc2-pc1')
+```
+
+
+# Table of summarie 
+
+```{r ,  message=FALSE}
+source('utils.R')
+(table <- impor_pca(x = standar_enviroment))
+
+```
+
+
+# plot PCA
+
+```{r , message=FALSE}
+
+table %>% 
+ggplot(aes(x = reorder(Component,variance),y = variance, fill = variance)) + 
+  geom_bar(stat = 'identity') + 
+  theme_bw() +
+  coord_flip() + 
+  labs(x = 'PCs', y = "%Total variance")
+
+```
+
+
+
 # Export an Image from GEE to local
 
 ```{r eval=FALSE, message=FALSE}
-stack_tobands <- stack_nldc$toBands() %>% ee$Image$toDouble()
+stack_tobands <- enviroment_index %>% ee$Image$toDouble()
 stack_tobands$bandNames()$getInfo()
 download <- ee_as_raster(
-  image = stack_img$
-    select("0_landcover",
-           "1_landcover",
-           "2_landcover",
-           "3_landcover",
-           "4_landcover",
-           "5_landcover",
-           "6_landcover",
-           "7_landcover"),
+  image = stack_tobands$
+    select("pc1",
+           "pc2",
+           "pc3"),
   dsn = '/home/antonybarja/Descargas/img.tif', #ruta
   via = "drive",
-  scale = 5000 
+  scale = 1000 
   )
 ```
