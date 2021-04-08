@@ -117,7 +117,6 @@ eingvalues_rgee <- function(x){
   return(eing_values)
 }
 
-
 # Resample size 
 
 # resample_size <- function(x){
@@ -127,5 +126,3 @@ eingvalues_rgee <- function(x){
 #   )
 #   return(reduce_size)
 # }
-
-
