@@ -265,7 +265,7 @@ tmin <- stack_tmin$
   select('6_LST_Day_1km')$
   rename('tmin')
 
-stack_evironment <- ee$Image(c(nldc,impervious,tree_cover,ndvi,tmax,tmin)) %>% resample_size()
+stack_evironment <- ee$Image(c(nldc,impervious,tree_cover,ndvi,tmax,tmin))
 ```
 
 
@@ -288,18 +288,22 @@ m7 + m0
 
 # Table eingvector 
 
+```{r echo=FALSE, message=FALSE}
+library(kableExtra)
+```
 
 ```{r, message=FALSE}
 
-eingvector_rgee(x = standar_environment)
-
+eingvector_rgee(x = standar_environment) %>% 
+  kableExtra::kable(align = "lccrr") 
 ```
 
 
 # Tabla eingvalues 
 
 ```{r, message=FALSE}
-eingvalues_rgee(x = standar_environment)
+eingvalues_rgee(x = standar_environment) %>% 
+  kableExtra::kable(align = "lccrr")
 ```
 
 
@@ -308,7 +312,9 @@ eingvalues_rgee(x = standar_environment)
 # Table of summarie 
 
 ```{r ,  message=FALSE}
-(table <- impor_pca(x = standar_environment))
+table <- impor_pca(x = standar_environment) 
+
+table %>% kableExtra::kable(align = "lccrr") 
 
 ```
 
