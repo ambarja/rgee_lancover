@@ -81,7 +81,7 @@ eingvector_rgee <- function(x){
   covar  <- arrays$reduceRegion(
     reducer = ee$Reducer$centeredCovariance(),
     geometry = nc,
-    scale = 100,
+    scale = 30,
     maxPixels = 10**19
   )
   
@@ -102,7 +102,7 @@ eingvalues_rgee <- function(x){
   covar  <- arrays$reduceRegion(
     reducer = ee$Reducer$centeredCovariance(),
     geometry = nc,
-    scale = 100,
+    scale = 30,
     maxPixels = 10**19
   )
   
@@ -120,12 +120,12 @@ eingvalues_rgee <- function(x){
 
 # Resample size 
 
-resample_size <- function(x){
-  reduce_size <- x$reproject(
-    crs = nldc$projection(),
-    scale = 100
-  )
-  return(reduce_size)
-}
+# resample_size <- function(x){
+#   reduce_size <- x$reproject(
+#     crs = nldc$projection(),
+#     scale = 100
+#   )
+#   return(reduce_size)
+# }
 
 
