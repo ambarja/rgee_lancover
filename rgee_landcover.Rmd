@@ -143,7 +143,7 @@ m3 + m0
 ```
 
 
-# NDVI  index 
+# NDVI index 
 
 ```{r message=FALSE}
 modis_years <- c(2010:2021) %>% ee$List()
@@ -202,7 +202,7 @@ m5 + m0
 
 ```
 
-# LTS - Tmax
+# LTS - Tmin
 
 ```{r message=FALSE}
 band_tmin <- sprintf('tmin%s%s',2010:2021,"[K°]")
@@ -286,7 +286,7 @@ m7 + m0
 ```
 
 
-# Table eingvector 
+# Table of eingvectors 
 
 ```{r echo=FALSE, message=FALSE}
 library(kableExtra)
@@ -299,7 +299,7 @@ eingvector_rgee(x = standar_environment) %>%
 ```
 
 
-# Tabla eingvalues 
+# Table of eingvalues 
 
 ```{r, message=FALSE}
 eingvalues_rgee(x = standar_environment) %>% 
