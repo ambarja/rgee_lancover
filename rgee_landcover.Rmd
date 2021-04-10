@@ -346,7 +346,7 @@ viz <- list(
   max = -0.9562
 )
 
-Map$addLayer(environment_index$select('pc1'),visParams = viz,name = 'pc1')
+Map$addLayer(environment_index$select('pc1'),visParams = viz,name = 'pc1', legend = TRUE)
 
 
 ```
