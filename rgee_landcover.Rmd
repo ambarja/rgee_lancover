@@ -80,7 +80,7 @@ viz <- list(
   )
 
 Map$centerObject(nc,zoom = 9)
-m1 <- Map$addLayers(stack_nldc,viz,legend = TRUE) 
+m1 <- Map$addLayers(stack_nldc,viz,name = names_bands,legend = TRUE) 
 m1 + m0
 ```
 
@@ -265,13 +265,14 @@ tmin <- stack_tmin$
   select('6_LST_Day_1km')$
   rename('tmin')
 
-stack_evironment <- ee$Image(c(nldc,impervious,tree_cover,ndvi,tmax,tmin))
+stack_evironment <- ee$Image(c(nldc,impervious,tree_cover,ndvi,tmax,tmin))$toDouble()
 ```
 
 
 # Principal Component Analysis
 
 ```{r,  message=FALSE}
+source('utils.R')
 standar_environment <- img_to_stand(x = stack_evironment) 
 environment_index <- pca_rgee(x = standar_environment) 
 viz <- list(
@@ -333,17 +334,22 @@ ggplot(aes(x = reorder(Component,variance),y = variance, fill = variance)) +
 ```
 
 
+# PC1 -  Environment index 
 
-# Export an Image from GEE to local
 
-```{r eval=FALSE, message=FALSE}
-environment_index$bandNames()$getInfo()
-download <- ee_as_raster(
-  image = enviroment_index$select(c("pc1","pc2","pc3")),
-  dsn = '/home/antonybarja/Descargas/img.tif', #ruta
-  via = "drive",
-  region = nc,
-  scale = 1000 
-  )
+```{r,  message=FALSE}
+standar_environment <- img_to_stand(x = stack_evironment) 
+environment_index <- pca_rgee(x = standar_environment) 
+viz <- list(
+  palette = c("#ff8080","#20853a","#fff041","#1017ff"),
+  min = -1.030,
+  max = -0.9562
+)
+
+Map$addLayer(environment_index$select('pc1'),visParams = viz,name = 'pc1')
+
 
 ```
+
+
+
