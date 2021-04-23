@@ -1,5 +1,6 @@
 ---
 title: "rgee - Landcover"
+author: Antony Barja
 subtitle: "USGS National Land Cover Database"
 output: 
   html_document:
@@ -348,8 +349,4 @@ viz <- list(
 
 Map$addLayer(environment_index$select('pc1'),visParams = viz,name = 'pc1', legend = TRUE)
 
-
 ```
-
-
-
